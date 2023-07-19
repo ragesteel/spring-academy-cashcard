@@ -1,5 +1,6 @@
 package ru.gt2.learn.sa.cashcard;
 
+import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,13 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 // Указываем какие адреса мы будем обрабатывать
 @RequestMapping("/cashcards")
 public class CashCardController {
+    private final CashCardRepository cashCardRepository;
+
+    public CashCardController(CashCardRepository cashCardRepository) {
+        this.cashCardRepository = cashCardRepository;
+    }
+
     @GetMapping("/{requestedId}")
     public ResponseEntity<CashCard> findById(
             // передача параметра из пути в метод контроллера
             @PathVariable Long requestedId) {
-        if (requestedId.equals(99L)) {
-            CashCard cashCard = new CashCard(99L, 123.45);
-            return ResponseEntity.ok(cashCard);
+        Optional<CashCard> optionalCashCard = cashCardRepository.findById(requestedId);
+        if (optionalCashCard.isPresent()) {
+            return ResponseEntity.ok(optionalCashCard.get());
         } else {
             return ResponseEntity.notFound().build();
         }
