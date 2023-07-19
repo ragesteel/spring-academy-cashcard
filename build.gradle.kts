@@ -37,6 +37,7 @@ tasks.withType<Test> {
 		showCauses = true
 		showStackTraces = true
 
+		// Change to `true` for more verbose test output
 		showStandardStreams = false
 	}
 }
