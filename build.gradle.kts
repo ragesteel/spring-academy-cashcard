@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.1.1"
@@ -18,26 +21,22 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-}
 
-tasks.withType<Test> {
-	useJUnitPlatform()
+	implementation("org.springframework.data:spring-data-jdbc")
+	testImplementation("com.h2database:h2")
 }
 
 // Так вот эта штука позволяет больше информации при тестировании выдавать
-/*
-// This section causes useful test output to go to the terminal.
-test {
+tasks.withType<Test> {
+	useJUnitPlatform()
 	testLogging {
-		events "passed", "skipped", "failed" //, "standardOut", "standardError"
+		events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED/*, TestLogEvent.STANDARD_OUT, TestLogEvent.STANDARD_ERROR*/)
 
-		showExceptions true
-		exceptionFormat "full"
-		showCauses true
-		showStackTraces true
+		showExceptions = true
+		exceptionFormat = TestExceptionFormat.FULL
+		showCauses = true
+		showStackTraces = true
 
-		// Change to `true` for more verbose test output
 		showStandardStreams = false
 	}
 }
-*/
