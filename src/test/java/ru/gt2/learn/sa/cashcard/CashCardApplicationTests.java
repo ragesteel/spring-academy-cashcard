@@ -47,7 +47,8 @@ class CashCardApplicationTests {
 	}
 
 	@Test
-	@DirtiesContext
+	@DirtiesContext // Для этого теста нужен свой отдельный чистый контекст,
+		// т.к. в противном случае данные которые он добавит обрушат другие тесты
 	void shouldCreateANewCashCard() {
 		CashCard newCashCard = new CashCard(null, 250.00);
 		ResponseEntity<Void> createResponse = restTemplate.postForEntity("/cashcards", newCashCard, Void.class);
@@ -69,16 +70,23 @@ class CashCardApplicationTests {
 
 	@Test
 	void shouldReturnAllCashCardsWhenListIsRequested() {
-		ResponseEntity<String> response = restTemplate.getForEntity("/cashcards", String.class);
+		ResponseEntity<String> response = restTemplate.getForEntity(
+				//  Запрашиваем список, поэтому ничего больше дополнительно не указываем
+				"/cashcards",
+				String.class);
+
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
 		DocumentContext documentContext = JsonPath.parse(response.getBody());
+		// Получение длины массива
 		int cashCardCount = documentContext.read("$.length()");
 		assertThat(cashCardCount).isEqualTo(3);
 
+		// Получение списка идентификаторов
 		JSONArray ids = documentContext.read("$..id");
 		assertThat(ids).containsExactlyInAnyOrder(99, 100, 101);
 
+		// Получение списка сумм
 		JSONArray amounts = documentContext.read("$..amount");
 		assertThat(amounts).containsExactlyInAnyOrder(123.45, 1.0, 150.0);
 	}
@@ -96,6 +104,7 @@ class CashCardApplicationTests {
 
 	@Test
 	void shouldReturnASortedPageOfCashCards() {
+		// Проверим возврат списка с сортировкой по убыванию суммы
 		ResponseEntity<String> response = restTemplate.getForEntity("/cashcards?page=0&size=1&sort=amount,desc", String.class);
 
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

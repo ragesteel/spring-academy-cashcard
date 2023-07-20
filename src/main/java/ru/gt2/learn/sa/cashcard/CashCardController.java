@@ -59,7 +59,9 @@ public class CashCardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CashCard>> findAll(Pageable pageable) {
+    public ResponseEntity<List<CashCard>> findAll(
+            // Инъектируется Spring'ом из параметров запроса, по умолчанию page=0, size=20
+            Pageable pageable) {
         Page<CashCard> page = cashCardRepository.findAll(PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
